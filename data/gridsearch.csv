@@ -1,0 +1,6 @@
+,1
+best_params,"{'mnb__alpha': 0.1, 'tv__max_df': 0.95, 'tv__max_features': None, 'tv__min_df': 1, 'tv__ngram_range': (1, 2)}"
+model,mnb
+test_score,0.8342205323193916
+train_score,0.8229774283540452
+vectorizer,tv
