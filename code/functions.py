@@ -69,10 +69,56 @@ class project_3:
         topics = [topic_1, topic_2, topic_3, topic_4]
         posts = []  # Set posts as empty list
         if check == True:  # if True, perform scrape
+            df_old = pd.read_csv(f'../data/fake.csv') # Import old DataFrame
+            project_3.note(f'Old DataFrame loaded') # Display note old DataFrame loaded
             for i in topics:
                 after = None  # Set after = None, to scrape first page
                 url = "https://www.reddit.com/r/"+i + \
-                    "/new.json?limit=100"  # Set url based on reddit topic
+                    "/hot.json?limit=100"  # Set url based on reddit topic
+                # Display note to inform reader that scraping is in process
+                project_3.note(f'Scraping {url}')
+                # assign list of posts from scrape_data into scrape variable
+                scrape = project_3.scrape_data(url, after)
+                for j in range(len(scrape)):  # Loop based on length of scrape variable
+                    # Append only the data of each post in scrape variable into posts
+                    posts.append(scrape[j]['data'])
+
+                after = None  # Set after = None, to scrape first page
+                url = "https://www.reddit.com/r/"+i + \
+                    "/new.json?limit=100"  # Set url based on new reddit topic
+                # Display note to inform reader that scraping is in process
+                project_3.note(f'Scraping {url}')
+                # assign list of posts from scrape_data into scrape variable
+                scrape = project_3.scrape_data(url, after)
+                for j in range(len(scrape)):  # Loop based on length of scrape variable
+                    # Append only the data of each post in scrape variable into posts
+                    posts.append(scrape[j]['data'])
+
+                after = None  # Set after = None, to scrape first page
+                url = "https://www.reddit.com/r/"+i + \
+                    "/controversial.json?limit=100&t=all"  # Set url based on controversial reddit topic
+                # Display note to inform reader that scraping is in process
+                project_3.note(f'Scraping {url}')
+                # assign list of posts from scrape_data into scrape variable
+                scrape = project_3.scrape_data(url, after)
+                for j in range(len(scrape)):  # Loop based on length of scrape variable
+                    # Append only the data of each post in scrape variable into posts
+                    posts.append(scrape[j]['data'])
+
+                after = None  # Set after = None, to scrape first page
+                url = "https://www.reddit.com/r/"+i + \
+                    "/top.json?limit=100&t=all"  # Set url based on top reddit topic
+                # Display note to inform reader that scraping is in process
+                project_3.note(f'Scraping {url}')
+                # assign list of posts from scrape_data into scrape variable
+                scrape = project_3.scrape_data(url, after)
+                for j in range(len(scrape)):  # Loop based on length of scrape variable
+                    # Append only the data of each post in scrape variable into posts
+                    posts.append(scrape[j]['data'])
+
+                after = None  # Set after = None, to scrape first page
+                url = "https://www.reddit.com/r/"+i + \
+                    "/rising.json?limit=100"  # Set url based on rising reddit topic
                 # Display note to inform reader that scraping is in process
                 project_3.note(f'Scraping {url}')
                 # assign list of posts from scrape_data into scrape variable
@@ -86,6 +132,8 @@ class project_3:
             # Drop duplicate posts with the same content
             df.drop_duplicates(subset='content', inplace=True)
             # Save DataFrame into csv to import without scraping in the future
+            df = df_old.append(df) # Append new DataFrame to old DataFrame
+            project_3.note(f'New DataFrame appended') # Display note when appended
             df.to_csv(f'../data/fake.csv')
             # Display success at end of function
             project_3.success(f'All topics scraped')
@@ -97,10 +145,12 @@ class project_3:
         topics = [topic_1, topic_2, topic_3, topic_4]
         posts = []  # Set posts as empty list
         if check == True:  # if True, perform scrape
+            df_old = pd.read_csv(f'../data/news.csv') # Import old DataFrame
+            project_3.note(f'Old DataFrame loaded') # Display note old DataFrame loaded
             for i in topics:
                 after = None  # Set after = None, to scrape first page
                 url = "https://www.reddit.com/r/"+i + \
-                    ".json?limit=100"  # Set url based on reddit topic
+                    "/hot.json?limit=100"  # Set url based on reddit topic
                 # Display note to inform reader that scraping is in process
                 project_3.note(f'Scraping {url}')
                 # assign list of posts from scrape_data into scrape variable
@@ -108,12 +158,59 @@ class project_3:
                 for j in range(len(scrape)):  # Loop based on length of scrape variable
                     # Append only the data of each post in scrape variable into posts
                     posts.append(scrape[j]['data'])
+
+                after = None  # Set after = None, to scrape first page
+                url = "https://www.reddit.com/r/"+i + \
+                    "/new.json?limit=100"  # Set url based on new reddit topic
+                # Display note to inform reader that scraping is in process
+                project_3.note(f'Scraping {url}')
+                # assign list of posts from scrape_data into scrape variable
+                scrape = project_3.scrape_data(url, after)
+                for j in range(len(scrape)):  # Loop based on length of scrape variable
+                    # Append only the data of each post in scrape variable into posts
+                    posts.append(scrape[j]['data'])
+
+                after = None  # Set after = None, to scrape first page
+                url = "https://www.reddit.com/r/"+i + \
+                    "/controversial.json?limit=100&t=all"  # Set url based on controversial reddit topic
+                # Display note to inform reader that scraping is in process
+                project_3.note(f'Scraping {url}')
+                # assign list of posts from scrape_data into scrape variable
+                scrape = project_3.scrape_data(url, after)
+                for j in range(len(scrape)):  # Loop based on length of scrape variable
+                    # Append only the data of each post in scrape variable into posts
+                    posts.append(scrape[j]['data'])
+
+                after = None  # Set after = None, to scrape first page
+                url = "https://www.reddit.com/r/"+i + \
+                    "/top.json?limit=100&t=all"  # Set url based on top reddit topic
+                # Display note to inform reader that scraping is in process
+                project_3.note(f'Scraping {url}')
+                # assign list of posts from scrape_data into scrape variable
+                scrape = project_3.scrape_data(url, after)
+                for j in range(len(scrape)):  # Loop based on length of scrape variable
+                    # Append only the data of each post in scrape variable into posts
+                    posts.append(scrape[j]['data'])
+
+                after = None  # Set after = None, to scrape first page
+                url = "https://www.reddit.com/r/"+i + \
+                    "/rising.json?limit=100"  # Set url based on rising reddit topic
+                # Display note to inform reader that scraping is in process
+                project_3.note(f'Scraping {url}')
+                # assign list of posts from scrape_data into scrape variable
+                scrape = project_3.scrape_data(url, after)
+                for j in range(len(scrape)):  # Loop based on length of scrape variable
+                    # Append only the data of each post in scrape variable into posts
+                    posts.append(scrape[j]['data'])
+
             df = pd.DataFrame(posts)  # Transform posts as DataFrame
             # Merge titles and selftext as content
             df['content'] = df.title + " " + df.selftext
             # Drop duplicate posts with the same content
             df.drop_duplicates(subset='content', inplace=True)
             # Save DataFrame into csv to import without scraping in the future
+            df = df_old.append(df) # Append new DataFrame to old DataFrame
+            project_3.note(f'New DataFrame appended') # Display note when appended
             df.to_csv(f'../data/news.csv')
             # Display success at end of function
             project_3.success(f'All topics scraped')
@@ -391,12 +488,12 @@ class project_3:
 
     # Function to get user content
     def get_input():
-        user_input = [str(f'"{input("Enter content to test:")}"\n')] # Prompts user to key in content
+        user_input = [str('"'+input("Enter content to test:\n")+'"')] # Prompts user to key in content
         df_user = pd.DataFrame(list(reader(user_input)))  # Create a DataFrame
         df_user = df_user.rename(columns={0: 'content'}) # Rename feature as content
         k = 0
         while k == 0:
-            user_is_fake = str(f'"{input("Is the content fake (Y/N)?")}"\n').lower
+            user_is_fake = str(input("Is the content fake (Y/N)?\n"))
             if user_is_fake.lower() == 'y':
                 df_user['is_fake'] = 1
                 k += 1
