@@ -1,6 +1,6 @@
-,1
-best_params,"{'mnb__alpha': 0.1, 'tv__max_df': 0.95, 'tv__max_features': None, 'tv__min_df': 1, 'tv__ngram_range': (1, 2)}"
-model,mnb
-test_score,0.8342205323193916
-train_score,0.8229774283540452
-vectorizer,tv
+,1,2
+best_params,"{'cv__max_df': 0.95, 'cv__max_features': None, 'cv__min_df': 1, 'cv__ngram_range': (1, 2), 'mnb__alpha': 0.1}","{'mnb__alpha': 0.1, 'tv__max_df': 0.95, 'tv__max_features': None, 'tv__min_df': 1, 'tv__ngram_range': (1, 2)}"
+model,mnb,mnb
+test_score,0.8083642138697724,0.8424210340568202
+train_score,0.7781306981942239,0.8055408505382037
+vectorizer,cv,tv
