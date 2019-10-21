@@ -2,6 +2,8 @@ import requests
 import time
 import warnings
 import matplotlib
+import nltk
+
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -19,7 +21,9 @@ from sklearn.naive_bayes import MultinomialNB, BernoulliNB, GaussianNB
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import confusion_matrix
 from csv import reader
-
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem import WordNetLemmatizer
+from gensim.models.word2vec import Word2Vec
 
 class project_3:
 
@@ -41,6 +45,8 @@ class project_3:
     matplotlib.rcParams['figure.figsize'] = (16.0, 9.0)
     pd.set_option('display.max_colwidth', -1)
     pd.options.display.max_rows = 999
+
+    nltk.download('wordnet')
 
     # Funtion to display green box with success
     def success(n):
@@ -336,30 +342,27 @@ class project_3:
         plt.imshow(wc)  # Plot wordcloud
         plt.show()  # Display plot
 
-    # Function to process content from DataFrame
-    def process(df):
-        for i, x in enumerate(df.content):  # Unpack index and values from df.content
-            # Clean each row in DataFrames
-            df.content[i] = project_3.clean(df.content[i])
-        return df
-
     # Function to pre-process content before analysing
-    def clean(content):
-        text = BeautifulSoup(content).get_text()  # Remove HTMLs
-        text = re.sub(r'^http:\/\/\S+(\/\S+)*(\/)?$', '',
-                      text, flags=re.MULTILINE)  # Remove URLs
-        # Replace US as United States
-        letters = re.sub(r"US", "United States", text)
-        # Replace LA as Los Angeles
-        letters = re.sub(r"LA", "Los Angeles", text)
-        letters = re.sub("[^a-zA-Z]", " ", text)  # Remove non-letters
-        # Convert to lower case, split into individual words
-        words = letters.lower().split()
-        stops = project_3.stop()  # Define stopwords
-        # Remove stop words
-        meaningful_words = [w for w in words if not w in stops]
-        # Join the words back into one string separated by space, and return the result
-        return(" ".join(meaningful_words))
+    def clean(df,lemma):
+        i = 0
+        df_tmp = df
+        while i < df_tmp.shape[0]:
+            df_tmp.content[i] = BeautifulSoup(df_tmp.content[i]).get_text()  # Remove HTMLs
+            df_tmp.content[i] = re.sub(r'^https:\/\/\S+(\/\S+)*(\/)?$', '',
+                          df_tmp.content[i], flags=re.MULTILINE)  # Remove URLs
+            df_tmp.content[i] = re.sub("[^a-zA-Z]", " ", df_tmp.content[i])  # Remove non-letters
+            df_tmp.content[i] = df_tmp.content[i].lower() # Convert to lower case, split into individual words
+            if lemma == True:
+                tokenizer = RegexpTokenizer(r'\w+')
+                lemmatizer = WordNetLemmatizer()
+                df_tmp.content[i] = tokenizer.tokenize(df_tmp.content[i])
+                df_tmp.content[i] = [lemmatizer.lemmatize(j,pos="v") for j in df_tmp.content[i]]
+                df_tmp.content[i] = (" ".join(df_tmp.content[i])) # Join the words back into one string separated by space, and return the result
+            i += 1
+            if i % 10000 == 0:
+                display(Markdown(f'Cleaned {i} rows out of {df_tmp.shape[0]}'))
+        project_3.success(f'{df_tmp.shape[0]} rows cleaned')
+        return df_tmp
 
     # Function to find the features in the DataFrame
     def features(df, y):
@@ -375,10 +378,14 @@ class project_3:
         words = list(cv_train.sum().sort_values(
             ascending=False).index)  # Create a list of words
         print(len(words))
+        cv_train['is_fake'] = y_train.values
+        cv_train = cv_train.groupby('is_fake').sum()[words]
+        project_3.note(f'Top 10 words')
+        display(cv_train.T.head(10))
         return words
 
     # Function to search the best parameters
-    def search(vects, models, df, y):
+    def search(vects, models, df, y, use_params):
         model_solns = {}  # Create an empty dictionary
         idx = 0  # Set model index as 0
         for v in vects:  # For each vectorizer in vects and for each model in models, perform grid search
@@ -389,27 +396,28 @@ class project_3:
                 # Declare vecorizer in loop as pipe_items list
                 pipe_items = [v]
                 pipe_items.append(m)  # Append the model to pipe_items
-                [train_score, test_score, y_test, y_test_hat, best_params] = project_3.pipeline(
-                    pipe_items, X_train.content, X_test.content, y_train, y_test)  # Call pipeline to perform grid search for best parameters
+                [train_score, test_score, y_test, y_test_hat, best_params, f1_score] = project_3.pipeline(
+                    pipe_items, use_params, X_train.content, X_test.content, y_train, y_test)  # Call pipeline to perform grid search for best parameters
                 model_solns[idx] = {'vectorizer': v, 'model': m, 'train_score': train_score, 'test_score': test_score,
-                                    'best_params': best_params}  # Add the values of grid search to model_solns dictionary
+                                    'best_params': best_params, 'f1_score': f1_score}  # Add the values of grid search to model_solns dictionary
         # Display success when completed
         project_3.success(f'<b>COMPLETED</b>')
         # Create a DataFrame from dictionary
         df_solns = pd.DataFrame(model_solns)
         # Save DataFrame as csv so we do not need to run this the next time
         df_solns.to_csv(f'../data/gridsearch.csv')
-        return df_solns, X_train, X_test, y_train, train_score, test_score, y_test, y_test_hat, best_params
+        return df_solns, X_train, X_test, y_train, train_score, test_score, y_test, y_test_hat, best_params, f1_score
 
     # Function to search best parameters using grid search cv via pipeline
-    def pipeline(items, X_train, X_test, y_train, y_test):
+    def pipeline(items, use_params, X_train, X_test, y_train, y_test):
         pipe_items = {  # Initialise vectorizers and models for our pipeline
             # Initialise CountVectorizer
-            'cv': CountVectorizer(stop_words=project_3.stop()),
+            'cv': CountVectorizer(),
             # Initialise TfidfVectorizer
-            'tv': TfidfVectorizer(stop_words=project_3.stop()),
+            'tv': TfidfVectorizer(),
             # Initialise HashingVectorizer
-            'hv': HashingVectorizer(stop_words=project_3.stop(), alternate_sign=True),
+            'hv': HashingVectorizer(alternate_sign=True),
+            'wv': Word2Vec(),
             'lr': LogisticRegression(),  # Initialise LogisticRegression
             'bnb': BernoulliNB(),  # Initialise BernoulliNB
             'mnb': MultinomialNB(),  # Initialise MultinomialNB
@@ -417,44 +425,44 @@ class project_3:
         }
         param_items = {  # Declare parameters for grid search
             'cv': {  # CountVectorizer parameters
-                # ngram range from 1 to 3
-                'cv__ngram_range': [(1, 2)],#[(1, 1), (1, 2), (1, 3)],
-                'cv__max_df': [0.95], #[0.95, 1.0],  # max df of 95% or 100%
-                'cv__min_df': [1], #[1, 2],  # min df of 1 or 2 documents
-                'cv__max_features' : [None] #[1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,11000,12000,13000,14000,15000,None] # max features from 1,000 to maximum
+                'cv__stop_words': [None, project_3.stop()],
+                'cv__ngram_range': [(1, 1), (1, 2)], # ngram range from 1 to 3
+                'cv__max_df': [0.95, 1.0],  # max df of 95% or 100%
+                'cv__min_df': [1, 2],  # min df of 1 or 2 documents
+                'cv__max_features': [10000,20000,3000,None] # max features from 1,000 to maximum
             },
             'tv': {  # TfidfVectorizer parameters
-                # ngram range from 1 to 3
-                'tv__ngram_range': [(1, 2)], #[(1, 1), (1, 2), (1, 3)],
-                'tv__max_df': [0.95], #[0.95, 1.0],  # max df of 95% or 100%
-                'tv__min_df': [1], #[1, 2],  # min df of 1 or 2 documents
-                # max features from 1,000 to maximum
-                'tv__max_features': [None] #[1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000, None]
+                'tv__stop_words': [None, project_3.stop()],
+                'tv__ngram_range': [(1, 1), (1, 2)], # ngram range from 1 to 3
+                'tv__max_df': [0.95, 1.0],  # max df of 95% or 100%
+                'tv__min_df': [1, 2],  # min df of 1 or 2 documents
+                'tv__max_features': [10000,20000,3000,None] # max features from 1,000 to maximum
             },
             'hv': {  # HashingVectorizer parameters
-                # ngram range from 1 to 3
-                # 'hv__ngram_range': [(1, 1), (1, 2), (1, 3)]
+                'hv__ngram_range': [(1, 1), (1, 2), (1, 3)] # ngram range from 1 to 3
+            },
+            'wv': {
+
             },
             'lr': {  # LogisticRegression parameters
-                # 'lr__C': [1, .05],  # Inverse alpha of 1 and 0.05
-                # 'lr__penalty': ['l1', 'l2']  # L1 or L2 regularization
+                'lr__C': [1, .05],  # Inverse alpha of 1 and 0.05
+                'lr__penalty': ['l1', 'l2']  # L1 or L2 regularization
             },
             'bnb': {  # BernoulliNB parameters
-                # alpha range from 0 to 2
-                # 'bnb__alpha': [np.arange(0.0, 2.0, 0.1)]
+                'bnb__alpha': [0.0001, 0.01, 1.0] # alpha range from 0.0001 to 1.0
             },
             'mnb': {  # MultinomialNB parameters
-                # alpha range from 0 to 2
-                'mnb__alpha': [0.1] #[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
+                'mnb__alpha': [0.0001, 0.01, 1.0] # alpha range from 0.0001 to 1.0
             },
             'gnb': {  # GaussianNB parameters
             },
         }
         params = dict()  # Create the parameters for GridSearch
-        for i in items:  # for each vectorizer,
-            for p in param_items[i]:  # for each parameter
-                # set parameters for vectorizer in the dictionary
-                params[p] = param_items[i][p]
+        if use_params:
+            for i in items:  # for each vectorizer,
+                for p in param_items[i]:  # for each parameter
+                    # set parameters for vectorizer in the dictionary
+                    params[p] = param_items[i][p]
         pipe_list = [(i, pipe_items[i]) for i in items]
         method = list()  # create an empty list
         for p in pipe_list:  # for each vectorizer in pipeline
@@ -478,13 +486,32 @@ class project_3:
         print(f'Test score: {test_score} (Accuracy)\n')  # Print accuracy
         tn, fp, fn, tp = confusion_matrix(
             y_test, y_test_hat).ravel()  # Get the confusion matrix
+        f1_score = 2*(((tp/(tp+fp))*(tp/(tp+fn)))/((tp/(tp+fp))+(tp/(tp+fn))))
         print(f"True Negatives: {tn}")  # Predicted real news correctly
-        print(f"False Positives: {fp}")  # Predicted fake news incorrectly
-        print(f"False Negatives: {fn}")  # Predicted real news incorrectly
+        print(f"False Positives: {fp} (Type I Error)")  # Predicted fake news incorrectly
+        print(f"False Negatives: {fn} (Type II Error)")  # Predicted real news incorrectly
         print(f"True Positives: {tp}\n")  # Predicted fake news correctly
         # Display completed banner
+        display(Markdown(f'<b>Sensitivity:</b> {tp/(tp+fn)}'))
+        display(Markdown(f'<b>Miss Rate:</b> {fn/(tp+fn)}'))
+        display(Markdown(f'<b>Specificity:</b> {tn/(fp+tn)}'))
+        display(Markdown(f'<b>Fall Out Rate:</b> {fp/(fp+tn)}'))
+        print()
+        display(Markdown(f'<b>Precision:</b> {tp/(tp+fp)}'))
+        display(Markdown(f'<b>False Discovery Rate:</b> {fp/(tp+fp)}'))
+        display(Markdown(f'<b>Negative Predictive Value:</b> {tn/(tn+fn)}'))
+        display(Markdown(f'<b>False Omission Rate:</b> {fn/(tn+fn)}'))
+        print()
+        display(Markdown(f'<b>Prevalence:</b> {(tp+fn)/(tp+fp+tn+fn)}'))
+        display(Markdown(f'<b>Accuracy:</b> {(tp+tn)/(tp+fp+tn+fn)}'))
+        print()
+        display(Markdown(f'<b>Positive Likelihood Ratio:</b> {(tp/(tp+fn))/(fp/(fp+tn))}'))
+        display(Markdown(f'<b>Negative Likelihood Ratio:</b> {(fn/(tp+fn))/(tn/(fp+tn))}'))
+        display(Markdown(f'<b>Diagnostic Odds Ratio:</b> {((tp/(tp+fn))/(fp/(fp+tn)))/((fn/(tp+fn))/(tn/(fp+tn)))}'))
+        display(Markdown(f'<b>F1 Score:</b> {2*(((tp/(tp+fp))*(tp/(tp+fn)))/((tp/(tp+fp))+(tp/(tp+fn))))}'))
+        print()
         project_3.check(f'Completed {method[0]} with {method[1]}')
-        return train_score, test_score, y_test, y_test_hat, train_params
+        return train_score, test_score, y_test, y_test_hat, train_params, f1_score
 
     # Function to get user content
     def get_input():
