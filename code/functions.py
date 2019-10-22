@@ -26,6 +26,7 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
 from gensim.models.word2vec import Word2Vec
 
+
 class project_3:
 
     # Colour scheme and style selected
@@ -76,8 +77,9 @@ class project_3:
         topics = [topic_1, topic_2, topic_3, topic_4]
         posts = []  # Set posts as empty list
         if check == True:  # if True, perform scrape
-            df_old = pd.read_csv(f'../data/fake.csv') # Import old DataFrame
-            project_3.note(f'Old DataFrame loaded') # Display note old DataFrame loaded
+            df_old = pd.read_csv(f'../data/fake.csv')  # Import old DataFrame
+            # Display note old DataFrame loaded
+            project_3.note(f'Old DataFrame loaded')
             for i in topics:
                 after = None  # Set after = None, to scrape first page
                 url = "https://www.reddit.com/r/"+i + \
@@ -139,8 +141,9 @@ class project_3:
             # Drop duplicate posts with the same content
             df.drop_duplicates(subset='content', inplace=True)
             # Save DataFrame into csv to import without scraping in the future
-            df = df_old.append(df) # Append new DataFrame to old DataFrame
-            project_3.note(f'New DataFrame appended') # Display note when appended
+            df = df_old.append(df)  # Append new DataFrame to old DataFrame
+            # Display note when appended
+            project_3.note(f'New DataFrame appended')
             df.to_csv(f'../data/fake.csv')
             # Display success at end of function
             project_3.success(f'All topics scraped')
@@ -152,8 +155,9 @@ class project_3:
         topics = [topic_1, topic_2, topic_3, topic_4]
         posts = []  # Set posts as empty list
         if check == True:  # if True, perform scrape
-            df_old = pd.read_csv(f'../data/news.csv') # Import old DataFrame
-            project_3.note(f'Old DataFrame loaded') # Display note old DataFrame loaded
+            df_old = pd.read_csv(f'../data/news.csv')  # Import old DataFrame
+            # Display note old DataFrame loaded
+            project_3.note(f'Old DataFrame loaded')
             for i in topics:
                 after = None  # Set after = None, to scrape first page
                 url = "https://www.reddit.com/r/"+i + \
@@ -216,8 +220,9 @@ class project_3:
             # Drop duplicate posts with the same content
             df.drop_duplicates(subset='content', inplace=True)
             # Save DataFrame into csv to import without scraping in the future
-            df = df_old.append(df) # Append new DataFrame to old DataFrame
-            project_3.note(f'New DataFrame appended') # Display note when appended
+            df = df_old.append(df)  # Append new DataFrame to old DataFrame
+            # Display note when appended
+            project_3.note(f'New DataFrame appended')
             df.to_csv(f'../data/news.csv')
             # Display success at end of function
             project_3.success(f'All topics scraped')
@@ -227,10 +232,12 @@ class project_3:
     def onion(onion, check):
         posts = []  # Set posts as empty list
         if check == True:  # if True, perform scrape
-            df_old = pd.read_csv(f'../data/news.csv') # Import old DataFrame
-            project_3.note(f'Old DataFrame loaded') # Display note old DataFrame loaded
+            df_old = pd.read_csv(f'../data/news.csv')  # Import old DataFrame
+            # Display note old DataFrame loaded
+            project_3.note(f'Old DataFrame loaded')
             after = None  # Set after = None, to scrape first page
-            url = "https://www.reddit.com/r/"+onion+"/hot.json?limit=100"  # Set url based on reddit topic
+            url = "https://www.reddit.com/r/"+onion + \
+                "/hot.json?limit=100"  # Set url based on reddit topic
             # Display note to inform reader that scraping is in process
             project_3.note(f'Scraping {url}')
             # assign list of posts from scrape_data into scrape variable
@@ -240,7 +247,8 @@ class project_3:
                 posts.append(scrape[j]['data'])
 
             after = None  # Set after = None, to scrape first page
-            url = "https://www.reddit.com/r/"+onion+"/new.json?limit=100"  # Set url based on new reddit topic
+            url = "https://www.reddit.com/r/"+onion + \
+                "/new.json?limit=100"  # Set url based on new reddit topic
             # Display note to inform reader that scraping is in process
             project_3.note(f'Scraping {url}')
             # assign list of posts from scrape_data into scrape variable
@@ -250,7 +258,8 @@ class project_3:
                 posts.append(scrape[j]['data'])
 
             after = None  # Set after = None, to scrape first page
-            url = "https://www.reddit.com/r/"+onion+"/controversial.json?limit=100&t=all"  # Set url based on controversial reddit topic
+            # Set url based on controversial reddit topic
+            url = "https://www.reddit.com/r/"+onion+"/controversial.json?limit=100&t=all"
             # Display note to inform reader that scraping is in process
             project_3.note(f'Scraping {url}')
             # assign list of posts from scrape_data into scrape variable
@@ -260,7 +269,8 @@ class project_3:
                 posts.append(scrape[j]['data'])
 
             after = None  # Set after = None, to scrape first page
-            url = "https://www.reddit.com/r/"+onion+"/top.json?limit=100&t=all"  # Set url based on top reddit topic
+            url = "https://www.reddit.com/r/"+onion + \
+                "/top.json?limit=100&t=all"  # Set url based on top reddit topic
             # Display note to inform reader that scraping is in process
             project_3.note(f'Scraping {url}')
             # assign list of posts from scrape_data into scrape variable
@@ -270,7 +280,8 @@ class project_3:
                 posts.append(scrape[j]['data'])
 
             after = None  # Set after = None, to scrape first page
-            url = "https://www.reddit.com/r/"+onion+"/rising.json?limit=100"  # Set url based on rising reddit topic
+            # Set url based on rising reddit topic
+            url = "https://www.reddit.com/r/"+onion+"/rising.json?limit=100"
             # Display note to inform reader that scraping is in process
             project_3.note(f'Scraping {url}')
             # assign list of posts from scrape_data into scrape variable
@@ -285,8 +296,9 @@ class project_3:
             # Drop duplicate posts with the same content
             df.drop_duplicates(subset='content', inplace=True)
             # Save DataFrame into csv to import without scraping in the future
-            df = df_old.append(df) # Append new DataFrame to old DataFrame
-            project_3.note(f'New DataFrame appended') # Display note when appended
+            df = df_old.append(df)  # Append new DataFrame to old DataFrame
+            # Display note when appended
+            project_3.note(f'New DataFrame appended')
             df.to_csv(f'../data/onion.csv')
             # Display success at end of function
             project_3.success(f'All topics scraped')
@@ -391,7 +403,7 @@ class project_3:
         fake_colour = ['#FFFFFF', '#FFA6A6', '#FFD2D2',
                        '#A13030', '#E74645']  # Set colour scheme for fake
         default_colour = ['#EFEEB4', '#DAD873', '#58B368',
-                       '#309975', '#454D66']  # Set colour scheme for fake       
+                          '#309975', '#454D66']  # Set colour scheme for fake
         if content == 'news':  # If news, use news_colour
             theme = news_colour
         elif content == 'fake':  # If fake, use fake_colour
@@ -414,21 +426,26 @@ class project_3:
         plt.show()  # Display plot
 
     # Function to pre-process content before analysing
-    def clean(df,lemma):
+    def clean(df, lemma):
         i = 0
         df_tmp = df
         while i < df_tmp.shape[0]:
-            df_tmp.content[i] = BeautifulSoup(df_tmp.content[i]).get_text()  # Remove HTMLs
+            df_tmp.content[i] = BeautifulSoup(
+                df_tmp.content[i]).get_text()  # Remove HTMLs
             df_tmp.content[i] = re.sub(r'^https:\/\/\S+(\/\S+)*(\/)?$', '',
-                          df_tmp.content[i], flags=re.MULTILINE)  # Remove URLs
-            df_tmp.content[i] = re.sub("[^a-zA-Z]", " ", df_tmp.content[i])  # Remove non-letters
-            df_tmp.content[i] = df_tmp.content[i].lower() # Convert to lower case, split into individual words
+                                       df_tmp.content[i], flags=re.MULTILINE)  # Remove URLs
+            df_tmp.content[i] = re.sub(
+                "[^a-zA-Z]", " ", df_tmp.content[i])  # Remove non-letters
+            # Convert to lower case, split into individual words
+            df_tmp.content[i] = df_tmp.content[i].lower()
             if lemma == True:
                 tokenizer = RegexpTokenizer(r'\w+')
                 lemmatizer = WordNetLemmatizer()
                 df_tmp.content[i] = tokenizer.tokenize(df_tmp.content[i])
-                df_tmp.content[i] = [lemmatizer.lemmatize(j,pos="v") for j in df_tmp.content[i]]
-                df_tmp.content[i] = (" ".join(df_tmp.content[i])) # Join the words back into one string separated by space, and return the result
+                df_tmp.content[i] = [lemmatizer.lemmatize(
+                    j, pos="v") for j in df_tmp.content[i]]
+                # Join the words back into one string separated by space, and return the result
+                df_tmp.content[i] = (" ".join(df_tmp.content[i]))
             i += 1
             if i % 10000 == 0:
                 display(Markdown(f'Cleaned {i} rows out of {df_tmp.shape[0]}'))
@@ -498,20 +515,23 @@ class project_3:
         param_items = {  # Declare parameters for grid search
             'cv': {  # CountVectorizer parameters
                 'cv__stop_words': [None, project_3.stop()],
-                'cv__ngram_range': [(1, 1), (1, 2)], # ngram range from 1 to 3
+                'cv__ngram_range': [(1, 1), (1, 2)],  # ngram range from 1 to 3
                 'cv__max_df': [0.95, 1.0],  # max df of 95% or 100%
                 'cv__min_df': [1, 2],  # min df of 1 or 2 documents
-                'cv__max_features': [10000,20000,3000,None] # max features from 1,000 to maximum
+                # max features from 1,000 to maximum
+                'cv__max_features': [10000, 20000, 3000, None]
             },
             'tv': {  # TfidfVectorizer parameters
                 'tv__stop_words': [None, project_3.stop()],
-                'tv__ngram_range': [(1, 1), (1, 2)], # ngram range from 1 to 3
+                'tv__ngram_range': [(1, 1), (1, 2)],  # ngram range from 1 to 3
                 'tv__max_df': [0.95, 1.0],  # max df of 95% or 100%
                 'tv__min_df': [1, 2],  # min df of 1 or 2 documents
-                'tv__max_features': [10000,20000,3000,None] # max features from 1,000 to maximum
+                # max features from 1,000 to maximum
+                'tv__max_features': [10000, 20000, 3000, None]
             },
             'hv': {  # HashingVectorizer parameters
-                'hv__ngram_range': [(1, 1), (1, 2), (1, 3)] # ngram range from 1 to 3
+                # ngram range from 1 to 3
+                'hv__ngram_range': [(1, 1), (1, 2), (1, 3)]
             },
             'wv': {
 
@@ -521,15 +541,17 @@ class project_3:
                 'lr__penalty': ['l1', 'l2']  # L1 or L2 regularization
             },
             'bnb': {  # BernoulliNB parameters
-                'bnb__alpha': [0.0001, 0.01, 1.0] # alpha range from 0.0001 to 1.0
+                # alpha range from 0.0001 to 1.0
+                'bnb__alpha': [0.0001, 0.01, 1.0]
             },
             'mnb': {  # MultinomialNB parameters
-                'mnb__alpha': [0.0001, 0.01, 1.0] # alpha range from 0.0001 to 1.0
+                # alpha range from 0.0001 to 1.0
+                'mnb__alpha': [0.0001, 0.01, 1.0]
             },
             'gnb': {  # GaussianNB parameters
             },
             'knn': {
-                'knn__n_neighbors': [35,200]
+                'knn__n_neighbors': [35, 200]
             }
         }
         params = dict()  # Create the parameters for GridSearch
@@ -563,8 +585,10 @@ class project_3:
             y_test, y_test_hat).ravel()  # Get the confusion matrix
         f1_score = 2*(((tp/(tp+fp))*(tp/(tp+fn)))/((tp/(tp+fp))+(tp/(tp+fn))))
         print(f"True Negatives: {tn}")  # Predicted real news correctly
-        print(f"False Positives: {fp} (Type I Error)")  # Predicted fake news incorrectly
-        print(f"False Negatives: {fn} (Type II Error)")  # Predicted real news incorrectly
+        # Predicted fake news incorrectly
+        print(f"False Positives: {fp} (Type I Error)")
+        # Predicted real news incorrectly
+        print(f"False Negatives: {fn} (Type II Error)")
         print(f"True Positives: {tp}\n")  # Predicted fake news correctly
         # Display completed banner
         display(Markdown(f'<b>Sensitivity:</b> {tp/(tp+fn)}'))
@@ -590,9 +614,11 @@ class project_3:
 
     # Function to get user content
     def get_input():
-        user_input = [str('"'+input("Enter content to test:\n")+'"')] # Prompts user to key in content
+        # Prompts user to key in content
+        user_input = [str('"'+input("Enter content to test:\n")+'"')]
         df_user = pd.DataFrame(list(reader(user_input)))  # Create a DataFrame
-        df_user = df_user.rename(columns={0: 'content'}) # Rename feature as content
+        # Rename feature as content
+        df_user = df_user.rename(columns={0: 'content'})
         k = 0
         while k == 0:
             user_is_fake = str(input("Is the content fake (Y/N)?\n"))
