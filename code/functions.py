@@ -18,6 +18,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer, HashingVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB, GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import confusion_matrix
 from csv import reader
@@ -222,6 +223,75 @@ class project_3:
             project_3.success(f'All topics scraped')
         return
 
+    # Function to scrape news posts
+    def onion(onion, check):
+        posts = []  # Set posts as empty list
+        if check == True:  # if True, perform scrape
+            df_old = pd.read_csv(f'../data/news.csv') # Import old DataFrame
+            project_3.note(f'Old DataFrame loaded') # Display note old DataFrame loaded
+            after = None  # Set after = None, to scrape first page
+            url = "https://www.reddit.com/r/"+onion+"/hot.json?limit=100"  # Set url based on reddit topic
+            # Display note to inform reader that scraping is in process
+            project_3.note(f'Scraping {url}')
+            # assign list of posts from scrape_data into scrape variable
+            scrape = project_3.scrape_data(url, after)
+            for j in range(len(scrape)):  # Loop based on length of scrape variable
+                # Append only the data of each post in scrape variable into posts
+                posts.append(scrape[j]['data'])
+
+            after = None  # Set after = None, to scrape first page
+            url = "https://www.reddit.com/r/"+onion+"/new.json?limit=100"  # Set url based on new reddit topic
+            # Display note to inform reader that scraping is in process
+            project_3.note(f'Scraping {url}')
+            # assign list of posts from scrape_data into scrape variable
+            scrape = project_3.scrape_data(url, after)
+            for j in range(len(scrape)):  # Loop based on length of scrape variable
+                # Append only the data of each post in scrape variable into posts
+                posts.append(scrape[j]['data'])
+
+            after = None  # Set after = None, to scrape first page
+            url = "https://www.reddit.com/r/"+onion+"/controversial.json?limit=100&t=all"  # Set url based on controversial reddit topic
+            # Display note to inform reader that scraping is in process
+            project_3.note(f'Scraping {url}')
+            # assign list of posts from scrape_data into scrape variable
+            scrape = project_3.scrape_data(url, after)
+            for j in range(len(scrape)):  # Loop based on length of scrape variable
+                # Append only the data of each post in scrape variable into posts
+                posts.append(scrape[j]['data'])
+
+            after = None  # Set after = None, to scrape first page
+            url = "https://www.reddit.com/r/"+onion+"/top.json?limit=100&t=all"  # Set url based on top reddit topic
+            # Display note to inform reader that scraping is in process
+            project_3.note(f'Scraping {url}')
+            # assign list of posts from scrape_data into scrape variable
+            scrape = project_3.scrape_data(url, after)
+            for j in range(len(scrape)):  # Loop based on length of scrape variable
+                # Append only the data of each post in scrape variable into posts
+                posts.append(scrape[j]['data'])
+
+            after = None  # Set after = None, to scrape first page
+            url = "https://www.reddit.com/r/"+onion+"/rising.json?limit=100"  # Set url based on rising reddit topic
+            # Display note to inform reader that scraping is in process
+            project_3.note(f'Scraping {url}')
+            # assign list of posts from scrape_data into scrape variable
+            scrape = project_3.scrape_data(url, after)
+            for j in range(len(scrape)):  # Loop based on length of scrape variable
+                # Append only the data of each post in scrape variable into posts
+                posts.append(scrape[j]['data'])
+
+            df = pd.DataFrame(posts)  # Transform posts as DataFrame
+            # Merge titles and selftext as content
+            df['content'] = df.title + " " + df.selftext
+            # Drop duplicate posts with the same content
+            df.drop_duplicates(subset='content', inplace=True)
+            # Save DataFrame into csv to import without scraping in the future
+            df = df_old.append(df) # Append new DataFrame to old DataFrame
+            project_3.note(f'New DataFrame appended') # Display note when appended
+            df.to_csv(f'../data/onion.csv')
+            # Display success at end of function
+            project_3.success(f'All topics scraped')
+        return
+
     # Function to scrape the data
     def scrape_data(url, after):
 
@@ -315,18 +385,19 @@ class project_3:
         return stopwords
 
     # Function to display wordcloud
-    def wordcloud(data, news):
+    def wordcloud(data, content):
         news_colour = ['#FFFFFF', '#A3CDFF', '#D1E6FF',
                        '#162F4D', '#1F306E']  # Set colour scheme for news
         fake_colour = ['#FFFFFF', '#FFA6A6', '#FFD2D2',
                        '#A13030', '#E74645']  # Set colour scheme for fake
-        if news == True:  # If news, use news_colour
+        default_colour = ['#EFEEB4', '#DAD873', '#58B368',
+                       '#309975', '#454D66']  # Set colour scheme for fake       
+        if content == 'news':  # If news, use news_colour
             theme = news_colour
-        elif news == False:  # If fake, use fake_colour
+        elif content == 'fake':  # If fake, use fake_colour
             theme = fake_colour
-        else:  # If neither, display error
-            warning(f'Incorrect input')
-            return
+        else:  # If neither, use default_colour
+            theme = default_colour
         wc = WordCloud(  # Initiate WordCloud
             background_color='white',  # Set background as white
             stopwords=project_3.stop(),  # Set stopwords as defined in function
@@ -421,7 +492,8 @@ class project_3:
             'lr': LogisticRegression(),  # Initialise LogisticRegression
             'bnb': BernoulliNB(),  # Initialise BernoulliNB
             'mnb': MultinomialNB(),  # Initialise MultinomialNB
-            'gnb': GaussianNB()  # Initialise GaussianNB
+            'gnb': GaussianNB(),  # Initialise GaussianNB
+            'knn': KNeighborsClassifier()
         }
         param_items = {  # Declare parameters for grid search
             'cv': {  # CountVectorizer parameters
@@ -456,6 +528,9 @@ class project_3:
             },
             'gnb': {  # GaussianNB parameters
             },
+            'knn': {
+                'knn__n_neighbors': [35,200]
+            }
         }
         params = dict()  # Create the parameters for GridSearch
         if use_params:
@@ -471,7 +546,7 @@ class project_3:
         # Display vectorizer and model used for current grid search
         display(Markdown(f'<b>Using {method[0]} with {method[1]}</b>'))
         pipe = Pipeline(pipe_list)  # Create the pipeline
-        # Perform grid search for the vectorizer and parameters in pipeline. Verbose set to 1 to indicate progress
+        # Perform grid search for the vectorizer and parameters in pipeline. Verbose set to 1 to display progress
         gs = GridSearchCV(pipe, param_grid=params,
                           verbose=1, pre_dispatch=None, cv=2)
         # fit values of grid search onto X_train and y_train
