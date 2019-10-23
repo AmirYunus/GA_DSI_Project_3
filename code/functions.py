@@ -26,7 +26,6 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
 from gensim.models.word2vec import Word2Vec
 
-
 class project_3:
 
     # Colour scheme and style selected
@@ -632,17 +631,34 @@ class project_3:
                 project_3.warning(f'Invalid entry. Please try again.')
         return df_user
 
+    # Function to get user content
+    def test_input(text,user_is_fake):
+        # Prompts user to key in content
+        # user_input = [str('"'+input("Enter content to test:\n")+'"')]
+        df_user = pd.DataFrame(list(reader(text)))  # Create a DataFrame
+        # Rename feature as content
+        df_user = df_user.rename(columns={0: 'content'})
+        k = 0
+        while k == 0:
+            # user_is_fake = str(input("Is the content fake (Y/N)?\n"))
+            if user_is_fake.lower() == 'y':
+                df_user['is_fake'] = 1
+                k += 1
+            elif user_is_fake.lower() == 'n':
+                df_user['is_fake'] = 0
+                k += 1
+            else:
+                project_3.warning(f'Invalid entry. Please try again.')
+        return df_user
+
     # Function to check if user content is fake or not
-    def check_user(best_vect, best_max_df, best_min_df, best_ngram_range, best_max_features, best_model, best_alpha, df, df_user, y, default_penalty='l2'):
+    def check_user(best_vect, best_max_df, best_min_df, best_ngram_range, best_max_features, best_model, best_alpha, stop, df, df_user, y, default_penalty='l2'):
         if best_vect == 'cv':  # If cv, use CountVectorizer with best parameters
-            vect = CountVectorizer(stop_words=project_3.stop(
-            ), max_df=best_max_df, min_df=best_min_df, ngram_range=best_ngram_range, max_features=best_max_features)
+            vect = CountVectorizer(stop_words=stop, max_df=best_max_df, min_df=best_min_df, ngram_range=best_ngram_range, max_features=best_max_features)
         elif best_vect == 'tv':  # If tv, use TfidfVectorizer with best parameters
-            vect = TfidfVectorizer(stop_words=project_3.stop(
-            ), max_df=best_max_df, min_df=best_min_df, ngram_range=best_ngram_range, max_features=best_max_features)
+            vect = TfidfVectorizer(stop_words=stop, max_df=best_max_df, min_df=best_min_df, ngram_range=best_ngram_range, max_features=best_max_features)
         elif best_vect == 'hv':  # If hv, use HashingVectorizer with best parameters
-            vect = HashingVectorizer(stop_words=project_3.stop(
-            ), alternate_sign=True, max_df=best_max_df, min_df=best_min_df, ngram_range=best_ngram_range)
+            vect = HashingVectorizer(stop_words=stop, alternate_sign=True, max_df=best_max_df, min_df=best_min_df, ngram_range=best_ngram_range)
         else:  # If none of above, display error
             project_3.warning(f'Error')
             return
