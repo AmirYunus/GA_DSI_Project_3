@@ -57,7 +57,7 @@ The final model is then fitted with a user-input content. User may input a real 
 
 ## Common Words Related to Real News
 
-![Top Common Words Related to Real News](/images/real_wordcloud.png)
+![Top Common Words Related to Real News](/images/news_wordcloud.png)
 
 ## Common Words Appearing in Both Real and Fake News
 
