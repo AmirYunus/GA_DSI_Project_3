@@ -9,7 +9,7 @@ GitHub: https://github.com/AmirYunus/GA_DSI_Project_3
 
 ## Problem Statement
 
-Suppose that a government agency wants to tackle the rise of fake news and scam in the community. We have proposed to use scrape reddit posts to help build our model. The agency aims the following:
+Suppose that a government agency wants to tackle the rise of fake news and scam in the community. We have proposed to scrape reddit posts to help build our model. The agency aims the following:
 
 * At least a 95% accuracy for the training set
 * At least a 95% accuracy for a separate testing set, unseen by the model
@@ -33,7 +33,7 @@ As we have taken fake news from four sources, we will also consider 4 factual so
 * `r/business` - A subreddit with financial, economy and business trends
 * `r/technology` - A subreddit with gaming, data and tecnological advancements
 
-As reddit is limiting scrapes to only 1,000 posts per time, we will be continuously scraping and append new results to the old DataFrame.
+As reddit is limiting scrapes to only 1,000 posts per time, we will be continuously scraping and append new results to the old DataFrame. To date, more than 116,000 posts have been scrapped. we will only select 100,000 posts, balanced equally, for our training model.
 
 After scraping, we will look at the most common words for each category - fake and real news. After which, we will run a few models to consider if raw, pre-processed or lemmatization will yield the highest accuracy. Once we can determine the type of data, we will run a grid search on the parameters that will give the best results.
 
@@ -128,7 +128,7 @@ The final model is then fitted with a user-input content. User may input a real 
 
 # Testing Against r/nottheonion
 
-`r/nottheonion` is a subreddit that posts news that it is ridiculours that people thought it was fake. It is not surprising if our model will predict more false positive that usual as the wordings will tend towards being fake.
+`r/nottheonion` is a subreddit that posts news that it is ridiculous that people thought it was fake. It is not surprising if our model will predict more false positive that usual as the wordings will tend towards being fake.
 
 Surprisingly, our model did well by accurately identifying 96.99% of posts as real as compared to the 0.03% false positives (Type I error). This could be due to the large training size we provided into our model.
 
